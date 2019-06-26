@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BootCampDemos
 {
@@ -12,29 +10,35 @@ namespace BootCampDemos
             if (tokens.Length != 3)
                 throw new ArgumentException("Invalid argument");
 
+            ParseResult parseResult = ParseTokens(tokens);
+            decimal actualResult = CalculateResult(parseResult.Numbers, parseResult.QuestionMarkContainingTokenIndex);
+            int indexofQuestionMark = parseResult.QuestionMarkContainingToken.IndexOf("?");
+            int missingDigit = CalculateMissingdigit(parseResult.QuestionMarkContainingToken, actualResult, indexofQuestionMark);
+
+            return missingDigit;
+        }        
+
+        private ParseResult ParseTokens(string[] tokens)
+        {
+            ParseResult result = new ParseResult();
             decimal[] numbers = new decimal[3];
-            string questionMarkContainingToken = string.Empty;
-            int questionMarkContainingTokenIndex = -1;
             for (int i = 0; i < 3; i++)
             {
                 bool hasQuestionMark = tokens[i].Contains("?");
                 if (hasQuestionMark)
                 {
                     numbers[i] = -1;
-                    questionMarkContainingToken = tokens[i];
-                    questionMarkContainingTokenIndex = i;
+                    result.QuestionMarkContainingToken = tokens[i];
+                    result.QuestionMarkContainingTokenIndex = i;
                 }
                 else
                 {
                     numbers[i] = decimal.Parse(tokens[i]);
                 }
             }
-            string result = string.Empty;
-            decimal actualResult = CalculateResult(numbers, questionMarkContainingTokenIndex);
-
-            int indexofQuestionMark = questionMarkContainingToken.IndexOf("?");
-            int myMissingDigit = CalculateMissingdigit(questionMarkContainingToken, actualResult, indexofQuestionMark);
-            return myMissingDigit;
+            result.Numbers = numbers;
+            
+            return result;
         }
 
         private int CalculateMissingdigit(string questionMarkContainingToken, decimal actualResult, int indexofQuestionMark)
@@ -69,5 +73,14 @@ namespace BootCampDemos
 
             return actualResult;
         }
+    }
+
+    internal class ParseResult
+    {
+        public decimal[] Numbers { get; set; } = new decimal[3];
+
+        public string QuestionMarkContainingToken { get; set; }
+
+        public int QuestionMarkContainingTokenIndex { get; internal set; }
     }
 }
